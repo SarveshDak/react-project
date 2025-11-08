@@ -69,9 +69,10 @@ const ThreatView = () => {
 
       // AlienVault returns data.alienvault.results (array)
       setThreatData({
-        recentThreats: data.alienvault.results || [],     // table/list
-        severityData: [],                                 // optional (for charts)
-        countryData: [],                                  // optional (for charts)
+        totalThreats: data.totalThreats || 0,
+        recentThreats: data.alienvault?.results || [],
+        severityData: data.severityData || [],
+        countryData: data.countryData || []                                  // optional (for charts)
       });
     })
     .catch(err => console.error("API Fetch Error:", err));
