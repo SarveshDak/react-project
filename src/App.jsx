@@ -62,23 +62,46 @@ const ThreatView = () => {
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
- fetch("https://threatview-backend.onrender.com/api/threats")
-    .then(res => res.json())
+  // indicate loading if you use that state
+  setThreatData(prev => ({ ...prev, loading: true }));
+
+  fetch("https://threatview-backend.onrender.com/api/threats")
+    .then(res => {
+      if (!res.ok) {
+        console.warn("Backend HTTP error", res.status);
+        return null;
+      }
+      return res.json();
+    })
     .then(data => {
       console.log("Backend Data:", data);
 
-      // AlienVault returns data.alienvault.results (array)
+      const totalThreats = data?.totalThreats ?? 0;
+      const recent = data?.alienvault?.results ?? [];
+      const severity = data?.severityData ?? [];
+      const country = data?.countryData ?? [];
+
       setThreatData({
-        totalThreats: data.totalThreats || 0,
-        recentThreats: data.alienvault?.results || [],
-        severityData: data.severityData || [],
-        countryData: data.countryData || []                                  // optional (for charts)
+        totalThreats,
+        recentThreats: recent,
+        severityData: severity,
+        countryData: country,
+        loading: false
       });
     })
-    .catch(err => console.error("API Fetch Error:", err));
+    .catch(err => {
+      console.error("API Fetch Error:", err);
+      setThreatData({
+        totalThreats: 0,
+        recentThreats: [],
+        severityData: [],
+        countryData: [],
+        loading: false
+      });
+    });
 }, []);
 
-  
+
   useEffect(() => {
     if (activeTab === 'overview') {
       setShowNotification(true);
