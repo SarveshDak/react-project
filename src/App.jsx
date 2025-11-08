@@ -40,7 +40,7 @@ const generateThreatData = () => {
       ioc: `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
       description: 'Suspicious activity detected from IP address'
     })),
-    stats: {
+    Stats: {
       totalThreats: 24567,
       activeIOCs: 8934,
       criticalAlerts: 156,
@@ -51,55 +51,50 @@ const generateThreatData = () => {
   };
 };
 
-const ThreatView = () => {
+const threatView = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTier, setSelectedTier] = useState('free');
-  const [threatData, setThreatData] = useState([]);
+  const [threatData, setThreatData] =  useState({
+  totalThreats: 0,
+  recentThreats: [],
+  severityData: [],
+  countryData: [],
+  loading: true,});
   const [severityFilter, setSeverityFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-  // indicate loading if you use that state
   setThreatData(prev => ({ ...prev, loading: true }));
 
   fetch("https://threatview-backend.onrender.com/api/threats")
-    .then(res => {
-      if (!res.ok) {
-        console.warn("Backend HTTP error", res.status);
-        return null;
-      }
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
-      console.log("Backend Data:", data);
-
-      const totalThreats = data?.totalThreats ?? 0;
-      const recent = data?.alienvault?.results ?? [];
-      const severity = data?.severityData ?? [];
-      const country = data?.countryData ?? [];
+      console.log("API RESPONSE: ", data);
 
       setThreatData({
-        totalThreats,
-        recentThreats: recent,
-        severityData: severity,
-        countryData: country,
-        loading: false
+        totalThreats: data?.totalThreats ?? 0,
+        recentThreats: data?.alienvault?.results ?? [],
+        severityData: data?.severityData ?? [],
+        countryData: data?.countryData ?? [],
+        loading: false,
       });
     })
     .catch(err => {
-      console.error("API Fetch Error:", err);
+      console.error("API ERROR:", err);
+
       setThreatData({
         totalThreats: 0,
         recentThreats: [],
         severityData: [],
         countryData: [],
-        loading: false
+        loading: false,
       });
     });
 }, []);
+
 
 
   useEffect(() => {
