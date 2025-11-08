@@ -62,7 +62,7 @@ const ThreatView = () => {
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-  fetch("https://threatview-backend.onrender.com/api/threats")
+ fetch("https://threatview-backend.onrender.com/api/threats")
     .then(res => res.json())
     .then(data => {
       console.log("Backend Data:", data);
